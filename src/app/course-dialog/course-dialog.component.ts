@@ -1,3 +1,4 @@
+import { MessagesService } from './../messages/messages.service';
 import { LoadingComponent } from './../loading/loading.component';
 import { LoadingService } from './../loading/loading.service';
 import { CourseService } from './../services/course.service';
@@ -14,7 +15,8 @@ import { throwError } from 'rxjs';
   templateUrl: './course-dialog.component.html',
   styleUrls: ['./course-dialog.component.css'],
   providers: [
-    LoadingService
+    LoadingService,
+    MessagesService
   ]
 })
 export class CourseDialogComponent implements AfterViewInit {
@@ -28,7 +30,8 @@ export class CourseDialogComponent implements AfterViewInit {
     private dialogRef: MatDialogRef<CourseDialogComponent>,
     @Inject(MAT_DIALOG_DATA) course: Course,
     private CourseService: CourseService,
-    private LoadingService: LoadingService) {
+    private LoadingService: LoadingService,
+    private MessagesService: MessagesService) {
 
     this.course = course;
 
@@ -49,7 +52,15 @@ export class CourseDialogComponent implements AfterViewInit {
 
     const changes = this.form.value;
 
-    const saveCourse$ = this.CourseService.saveCourse(this.course.id, changes);
+    const saveCourse$ = this.CourseService.saveCourse(this.course.id, changes)
+      .pipe(
+        catchError(err => {
+          const message = "There was an error in saving your changes.";
+          console.log(message, err);
+          this.MessagesService.showErrors(message);
+          return throwError(err);
+        })
+      )
 
     this.LoadingService.showLoaderUntilCompleted(saveCourse$)
       .subscribe(
