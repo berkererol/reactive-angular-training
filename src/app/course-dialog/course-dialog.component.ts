@@ -9,6 +9,7 @@ import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import * as moment from 'moment';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { CourseStore } from '../services/course.store';
 
 @Component({
   selector: 'course-dialog',
@@ -29,8 +30,7 @@ export class CourseDialogComponent implements AfterViewInit {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<CourseDialogComponent>,
     @Inject(MAT_DIALOG_DATA) course: Course,
-    private CourseService: CourseService,
-    private LoadingService: LoadingService,
+    private courseStore: CourseStore,
     private MessagesService: MessagesService) {
 
     this.course = course;
@@ -52,23 +52,10 @@ export class CourseDialogComponent implements AfterViewInit {
 
     const changes = this.form.value;
 
-    const saveCourse$ = this.CourseService.saveCourse(this.course.id, changes)
-      .pipe(
-        catchError(err => {
-          const message = "There was an error in saving your changes.";
-          console.log(message, err);
-          this.MessagesService.showErrors(message);
-          return throwError(err);
-        })
-      )
+    this.courseStore.saveCourse(this.course.id, changes)
+      .subscribe();
 
-    this.LoadingService.showLoaderUntilCompleted(saveCourse$)
-      .subscribe(
-        (val) => {
-          this.dialogRef.close(val);
-        }
-      );
-
+      this.dialogRef.close(changes);
   }
 
   close() {
