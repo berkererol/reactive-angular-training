@@ -1,7 +1,7 @@
+import { AuthStore } from './services/auth.store';
 import { MessagesService } from './messages/messages.service';
 import { LoadingService } from './loading/loading.service';
 import {Component, OnInit} from '@angular/core';
-
 
 
 @Component({
@@ -15,7 +15,7 @@ import {Component, OnInit} from '@angular/core';
 })
 export class AppComponent implements  OnInit {
 
-    constructor() {
+    constructor(public authStore: AuthStore) {
 
     }
 
@@ -25,7 +25,7 @@ export class AppComponent implements  OnInit {
     }
 
   logout() {
-
+    this.authStore.logout();
   }
 
 }
